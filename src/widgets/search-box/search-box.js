@@ -63,19 +63,6 @@ const renderer = ({
       addPoweredBy(input, poweredBy, templates);
     }
 
-    // When the page is coming from BFCache
-    // (https://developer.mozilla.org/en-US/docs/Working_with_BFCache)
-    // then we force the input value to be the current query
-    // Otherwise, this happens:
-    // - <input> autocomplete = off (default)
-    // - search $query
-    // - navigate away
-    // - use back button
-    // - input query is empty (because <input> autocomplete = off)
-    window.addEventListener('pageshow', () => {
-      input.value = queryFromInput;
-    });
-
     // Update value when query change outside of the input
     onHistoryChange(fullState => {
       input.value = fullState.query || '';
