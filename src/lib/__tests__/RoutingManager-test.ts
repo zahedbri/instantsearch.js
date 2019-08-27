@@ -384,7 +384,7 @@ describe('RoutingManager', () => {
       });
     });
 
-    test('should apply state mapping on differences after searchfunction', done => {
+    test('should apply state mapping on differences after searchFunction', done => {
       const searchClient = createSearchClient();
 
       const router = createFakeRouter({
@@ -393,8 +393,15 @@ describe('RoutingManager', () => {
 
       const stateMapping = createFakeStateMapping({
         stateToRoute(uiState) {
+          console.log(uiState)
+          const {
+            indices: {
+              instant_search: { query },
+            },
+          } = uiState;
+
           return {
-            query: uiState.query && uiState.query.toUpperCase(),
+            query: query && query.toUpperCase(),
           };
         },
       });

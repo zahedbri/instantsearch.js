@@ -1,6 +1,6 @@
 import { SearchParameters } from 'algoliasearch-helper';
 import { Client as AlgoliaSearchClient } from 'algoliasearch';
-import { Widget, UiState } from './widget';
+import { Widget, UiState, GlobalUiState } from './widget';
 export {
   default as InstantSearch,
   InstantSearchOptions,
@@ -124,20 +124,20 @@ export interface Router<TRouteState = UiState> extends Widget {
  * should be valid for any UiState:
  * `UiState = routeToState(stateToRoute(UiState))`.
  */
-export type StateMapping<TRouteState = UiState> = {
+export type StateMapping<TRouteState = GlobalUiState> = {
   /**
    * Transforms a UI state representation into a route object.
    * It receives an object that contains the UI state of all the widgets in the page.
    * It should return an object of any form as long as this form can be read by
    * the `routeToState` function.
    */
-  stateToRoute(uiState: UiState): TRouteState;
+  stateToRoute(uiState: GlobalUiState): TRouteState;
   /**
    * Transforms route object into a UI state representation.
    * It receives an object that contains the UI state stored by the router.
    * The format is the output of `stateToRoute`.
    */
-  routeToState(routeState: TRouteState): UiState;
+  routeToState(routeState: TRouteState): GlobalUiState;
 };
 
 // @TODO: use the generic form of this in routers

@@ -106,6 +106,12 @@ export type UiState = {
   };
 };
 
+export type GlobalUiState = {
+  indices: {
+    [indexId: string]: UiState;
+  };
+};
+
 /**
  * Widgets are the building blocks of InstantSearch.js. Any valid widget must
  * have at least a `render` or a `init` function.
