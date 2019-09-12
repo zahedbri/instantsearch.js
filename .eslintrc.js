@@ -11,6 +11,7 @@ module.exports = {
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
   },
+  
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
