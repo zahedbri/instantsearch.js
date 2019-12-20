@@ -40,6 +40,7 @@ type HitSnippetResult = {
 export interface AlgoliaHit {
   [attribute: string]: any;
   objectID: string;
+  _geoLoc?: { lat: number; lng: number };
   _highlightResult?: HitHighlightResult;
   _snippetResult?: HitSnippetResult;
   _rankingInfo?: {

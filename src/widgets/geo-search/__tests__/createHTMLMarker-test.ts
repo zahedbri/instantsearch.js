@@ -1,16 +1,20 @@
+/* global google */
 import createHTMLMarker from '../createHTMLMarker';
 
 describe('createHTMLMarker', () => {
   class FakeOverlayView {
-    setMap = jest.fn();
+    public map: any;
 
-    getPanes = jest.fn(() => ({
+    public setMap = jest.fn(newMap => (this.map = newMap));
+    public getMap = jest.fn(() => this.map);
+
+    public getPanes = jest.fn(() => ({
       overlayMouseTarget: {
         appendChild: jest.fn(),
       },
     }));
 
-    getProjection = jest.fn(() => ({
+    public getProjection = jest.fn(() => ({
       fromLatLngToDivPixel: jest.fn(() => ({
         x: 0,
         y: 0,
@@ -18,22 +22,23 @@ describe('createHTMLMarker', () => {
     }));
   }
 
-  const createFakeGoogleReference = () => ({
-    maps: {
-      LatLng: jest.fn(x => x),
-      // Required to be a constructor since
-      // we extend from it in the Marker class
-      OverlayView: FakeOverlayView,
-    },
-  });
+  const createFakeGoogleReference = () =>
+    (({
+      maps: {
+        LatLng: jest.fn(x => x),
+        // Required to be a constructor since
+        // we extend from it in the Marker class
+        OverlayView: FakeOverlayView,
+      },
+    } as unknown) as typeof google);
 
   const createFakeParams = ({ ...rest } = {}) => ({
-    __id: 123456789,
+    __id: '123456789',
     position: {
       lat: 10,
       lng: 12,
     },
-    map: 'map-instance-placeholder',
+    map: ('map-instance-placeholder' as unknown) as google.maps.Map,
     template: '<div>Hello</div>',
     className: 'ais-geo-search-marker',
     ...rest,
@@ -44,9 +49,9 @@ describe('createHTMLMarker', () => {
     const HTMLMarker = createHTMLMarker(googleReference);
     const params = createFakeParams();
 
-    const marker = new HTMLMarker(params);
+    const marker: any = new HTMLMarker(params);
 
-    expect(marker.__id).toBe(123456789);
+    expect(marker.__id).toBe('123456789');
     expect(marker.anchor).toEqual({ x: 0, y: 0 });
     expect(marker.listeners).toEqual({});
     expect(marker.latLng).toEqual({ lat: 10, lng: 12 });
@@ -69,7 +74,7 @@ describe('createHTMLMarker', () => {
       },
     });
 
-    const marker = new HTMLMarker(params);
+    const marker: any = new HTMLMarker(params);
 
     expect(marker.anchor).toEqual({ x: 5, y: 10 });
   });
@@ -85,12 +90,14 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.getPanes.mockImplementationOnce(() => ({ overlayMouseTarget }));
+      (marker.getPanes as jest.Mock).mockImplementationOnce(() => ({
+        overlayMouseTarget,
+      }));
 
       marker.onAdd();
 
       expect(overlayMouseTarget.appendChild).toHaveBeenCalledWith(
-        marker.element
+        (marker as any).element
       );
     });
 
@@ -101,14 +108,14 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.element.getBoundingClientRect = () => ({
+      (marker as any).element.getBoundingClientRect = () => ({
         width: 50,
         height: 30,
       });
 
       marker.onAdd();
 
-      expect(marker.offset).toEqual({ x: 25, y: 30 });
+      expect((marker as any).offset).toEqual({ x: 25, y: 30 });
     });
 
     it('expect to compute the element offset with an anchor', () => {
@@ -123,14 +130,14 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.element.getBoundingClientRect = () => ({
+      (marker as any).element.getBoundingClientRect = () => ({
         width: 50,
         height: 30,
       });
 
       marker.onAdd();
 
-      expect(marker.offset).toEqual({ x: 30, y: 40 });
+      expect((marker as any).offset).toEqual({ x: 30, y: 40 });
     });
 
     it('expect to force the element width from the BBox', () => {
@@ -145,13 +152,13 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.element.getBoundingClientRect = () => ({
+      (marker as any).element.getBoundingClientRect = () => ({
         width: 50,
       });
 
       marker.onAdd();
 
-      expect(marker.element.style.width).toBe('50px');
+      expect((marker as any).element.style.width).toBe('50px');
     });
   });
 
@@ -167,12 +174,12 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.getProjection.mockImplementationOnce(() => ({
+      (marker.getProjection as jest.Mock).mockImplementationOnce(() => ({
         fromLatLngToDivPixel,
       }));
 
       // Simulate the offset
-      marker.offset = {
+      (marker as any).offset = {
         x: 50,
         y: 30,
       };
@@ -180,8 +187,8 @@ describe('createHTMLMarker', () => {
       marker.draw();
 
       expect(fromLatLngToDivPixel).toHaveBeenCalledWith({ lat: 10, lng: 12 });
-      expect(marker.element.style.left).toBe('50px');
-      expect(marker.element.style.top).toBe('20px');
+      expect((marker as any).element.style.left).toBe('50px');
+      expect((marker as any).element.style.top).toBe('20px');
     });
 
     it('expect to set the correct zIndex on the element', () => {
@@ -195,19 +202,19 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      marker.getProjection.mockImplementationOnce(() => ({
+      (marker.getProjection as jest.Mock).mockImplementationOnce(() => ({
         fromLatLngToDivPixel,
       }));
 
       // Simulate the offset
-      marker.offset = {
+      (marker as any).offset = {
         x: 50,
         y: 30,
       };
 
       marker.draw();
 
-      expect(marker.element.style.zIndex).toBe('20');
+      expect((marker as any).element.style.zIndex).toBe('20');
     });
   });
 
@@ -221,14 +228,14 @@ describe('createHTMLMarker', () => {
 
       // Simulate the parentNode
       const parentNode = document.createElement('div');
-      parentNode.appendChild(marker.element);
+      parentNode.appendChild((marker as any).element);
 
       expect(parentNode.childNodes).toHaveLength(1);
 
       marker.onRemove();
 
       expect(parentNode.childNodes).toHaveLength(0);
-      expect(marker.element).toBe(undefined);
+      expect((marker as any).element).toBe(undefined);
     });
 
     it('expect to remove all the listeners', () => {
@@ -241,23 +248,23 @@ describe('createHTMLMarker', () => {
       const marker = new HTMLMarker(params);
 
       const removeEventListener = jest.spyOn(
-        marker.element,
+        (marker as any).element,
         'removeEventListener'
       );
 
       // Simulate the parentNode
       const parentNode = document.createElement('div');
-      parentNode.appendChild(marker.element);
+      parentNode.appendChild((marker as any).element);
 
       // Simulate the listeners
-      marker.listeners = {
+      (marker as any).listeners = {
         click: onClick,
         mouseover: onMouseOver,
       };
 
       marker.onRemove();
 
-      expect(marker.listeners).toBe(undefined);
+      expect((marker as any).listeners).toBe(undefined);
       expect(removeEventListener).toHaveBeenCalledTimes(2);
       expect(removeEventListener).toHaveBeenCalledWith('click', onClick);
       expect(removeEventListener).toHaveBeenCalledWith(
@@ -276,13 +283,16 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      const addEventListener = jest.spyOn(marker.element, 'addEventListener');
+      const addEventListener = jest.spyOn(
+        (marker as any).element,
+        'addEventListener'
+      );
 
       marker.addListener('click', onClick);
 
       expect(addEventListener).toHaveBeenCalledTimes(1);
       expect(addEventListener).toHaveBeenCalledWith('click', onClick);
-      expect(marker.listeners).toEqual({ click: onClick });
+      expect((marker as any).listeners).toEqual({ click: onClick });
     });
   });
 
@@ -294,7 +304,7 @@ describe('createHTMLMarker', () => {
 
       const marker = new HTMLMarker(params);
 
-      const actual = marker.getPosition();
+      const actual = (marker as any).getPosition();
       const expectation = { lat: 10, lng: 12 };
 
       expect(actual).toEqual(expectation);
