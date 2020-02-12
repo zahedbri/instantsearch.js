@@ -1,4 +1,7 @@
-import algoliasearchHelper, { AlgoliaSearchHelper } from 'algoliasearch-helper';
+import algoliasearchHelper, {
+  AlgoliaSearchHelper,
+  SearchParameters,
+} from 'algoliasearch-helper';
 import EventEmitter from 'events';
 import index, { Index } from '../widgets/index/index';
 import version from './version';
@@ -127,6 +130,7 @@ class InstantSearch extends EventEmitter {
   public _createURL: (nextState: UiState) => string;
   public _searchFunction?: InstantSearchOptions['searchFunction'];
   public _mainHelperSearch?: AlgoliaSearchHelper['search'];
+  public __SSR_PARAMETERS?: { [indexId: string]: SearchParameters };
   public middleware: MiddlewareDefinition[] = [];
 
   public constructor(options: InstantSearchOptions) {

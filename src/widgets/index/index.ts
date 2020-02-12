@@ -290,12 +290,26 @@ const index = (props: IndexProps): Index => {
       // inside InstantSearch at the `start` method, which occurs before the `init`
       // step.
       const mainHelper = instantSearchInstance.mainHelper!;
+
+      // When in (Vue) server side rendering, we pass both UiState & SearchParameters
+      // index needs to take this in account
+      const initialSearchParameters =
+        instantSearchInstance.__SSR_PARAMETERS &&
+        instantSearchInstance.__SSR_PARAMETERS[indexId]
+          ? instantSearchInstance.__SSR_PARAMETERS[indexId]
+          : new algoliasearchHelper.SearchParameters({
+              index: indexName,
+            });
+
       const parameters = getLocalWidgetsSearchParameters(localWidgets, {
         uiState: localUiState,
-        initialSearchParameters: new algoliasearchHelper.SearchParameters({
-          index: indexName,
-        }),
+        initialSearchParameters,
       });
+
+      // clean up this part of the state, in case the same index gets added again later
+      if (instantSearchInstance.__SSR_PARAMETERS) {
+        delete instantSearchInstance.__SSR_PARAMETERS[indexId];
+      }
 
       // This Helper is only used for state management we do not care about the
       // `searchClient`. Only the "main" Helper created at the `InstantSearch`
