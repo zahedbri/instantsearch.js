@@ -1004,6 +1004,11 @@ See documentation: https://www.algolia.com/doc/api-reference/widgets/index-widge
           state: instance.getHelper()!.state,
           templatesConfig: instantSearchInstance.templatesConfig,
           createURL: expect.any(Function),
+          results: undefined,
+          scopedResults: [],
+          searchMetadata: {
+            isSearchStalled: instantSearchInstance._isSearchStalled,
+          },
         });
       });
     });
@@ -1936,6 +1941,7 @@ See documentation: https://www.algolia.com/doc/api-reference/widgets/index-widge
         expect(widget.render).toHaveBeenCalledTimes(1);
         expect(widget.render).toHaveBeenCalledWith({
           instantSearchInstance,
+          parent: instance,
           results: expect.any(algoliasearchHelper.SearchResults),
           scopedResults: [
             {

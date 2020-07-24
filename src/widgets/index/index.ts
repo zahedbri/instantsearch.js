@@ -435,6 +435,31 @@ const index = (props: IndexProps): Index => {
       });
 
       localWidgets.forEach(widget => {
+        if (widget.getWidgetRenderState) {
+          const widgetRenderState = widget.getWidgetRenderState({
+            uiState,
+            helper: this.getHelper()!,
+            parent: this,
+            instantSearchInstance,
+            state: helper!.state,
+            templatesConfig: instantSearchInstance.templatesConfig,
+            createURL,
+            results: undefined,
+            scopedResults: [],
+            searchMetadata: {
+              isSearchStalled: instantSearchInstance._isSearchStalled,
+            },
+          });
+
+          storeRenderState({
+            widgetRenderState,
+            instantSearchInstance,
+            parent: this,
+          });
+        }
+      });
+
+      localWidgets.forEach(widget => {
         warning(
           !widget.getWidgetState,
           'The `getWidgetState` method is renamed `getWidgetUiState` and will no longer exist under that name in InstantSearch.js 5.x. Please use `getWidgetUiState` instead.'
@@ -449,6 +474,11 @@ const index = (props: IndexProps): Index => {
             state: helper!.state,
             templatesConfig: instantSearchInstance.templatesConfig,
             createURL,
+            results: undefined,
+            scopedResults: [],
+            searchMetadata: {
+              isSearchStalled: instantSearchInstance._isSearchStalled,
+            },
           });
         }
       });
@@ -483,6 +513,34 @@ const index = (props: IndexProps): Index => {
     },
 
     render({ instantSearchInstance }: IndexRenderOptions) {
+      if (!this.getResults()) {
+        return;
+      }
+
+      localWidgets.forEach(widget => {
+        if (widget.getWidgetRenderState) {
+          const widgetRenderState = widget.getWidgetRenderState({
+            helper: this.getHelper()!,
+            parent: this,
+            instantSearchInstance,
+            results: this.getResults()!,
+            scopedResults: resolveScopedResultsFromIndex(this),
+            state: this.getResults()!._state,
+            templatesConfig: instantSearchInstance.templatesConfig,
+            createURL,
+            searchMetadata: {
+              isSearchStalled: instantSearchInstance._isSearchStalled,
+            },
+          });
+
+          storeRenderState({
+            widgetRenderState,
+            instantSearchInstance,
+            parent: this,
+          });
+        }
+      });
+
       localWidgets.forEach(widget => {
         // At this point, all the variables used below are set. Both `helper`
         // and `derivedHelper` have been created at the `init` step. The attribute
@@ -491,13 +549,14 @@ const index = (props: IndexProps): Index => {
         // be delayed. The render is triggered for the complete tree but some parts do
         // not have results yet.
 
-        if (widget.render && derivedHelper!.lastResults) {
+        if (widget.render) {
           widget.render({
             helper: helper!,
+            parent: this,
             instantSearchInstance,
-            results: derivedHelper!.lastResults,
+            results: this.getResults()!,
             scopedResults: resolveScopedResultsFromIndex(this),
-            state: derivedHelper!.lastResults._state,
+            state: this.getResults()!._state,
             templatesConfig: instantSearchInstance.templatesConfig,
             createURL,
             searchMetadata: {
@@ -569,3 +628,25 @@ const index = (props: IndexProps): Index => {
 };
 
 export default index;
+
+function storeRenderState({
+  widgetRenderState,
+  instantSearchInstance,
+  parent,
+}) {
+  const parentIndexName = parent
+    ? parent.getIndexId()
+    : instantSearchInstance.mainIndex.getIndexId();
+  const {
+    instantSearchInstance: widgetInstantSearchInstance,
+    ...state
+  } = widgetRenderState;
+
+  instantSearchInstance.renderState = {
+    ...instantSearchInstance.renderState,
+    [parentIndexName]: {
+      ...instantSearchInstance.renderState[parentIndexName],
+      ...state,
+    },
+  };
+}

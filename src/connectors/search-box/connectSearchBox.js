@@ -86,7 +86,7 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         this._clear();
       },
 
-      init({ helper, instantSearchInstance }) {
+      init({ helper, instantSearchInstance, searchMetadata }) {
         this._cachedClear = this._cachedClear.bind(this);
         this._clear = clear(helper);
 
@@ -106,13 +106,11 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         };
 
         renderFn(
-          {
-            query: helper.state.query || '',
-            refine: this._refine,
-            clear: this._cachedClear,
-            widgetParams,
+          this.getWidgetRenderState({
+            helper,
             instantSearchInstance,
-          },
+            searchMetadata,
+          }).searchBox,
           true
         );
       },
@@ -121,14 +119,11 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         this._clear = clear(helper);
 
         renderFn(
-          {
-            query: helper.state.query || '',
-            refine: this._refine,
-            clear: this._cachedClear,
-            widgetParams,
+          this.getWidgetRenderState({
+            helper,
             instantSearchInstance,
-            isSearchStalled: searchMetadata.isSearchStalled,
-          },
+            searchMetadata,
+          }).searchBox,
           false
         );
       },
@@ -137,6 +132,19 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         unmountFn();
 
         return state.setQueryParameter('query', undefined);
+      },
+
+      getWidgetRenderState({ helper, instantSearchInstance, searchMetadata }) {
+        return {
+          searchBox: {
+            query: helper.state.query || '',
+            refine: this._refine,
+            clear: this._cachedClear,
+            widgetParams,
+            isSearchStalled: searchMetadata.isSearchStalled,
+            instantSearchInstance,
+          },
+        };
       },
 
       getWidgetUiState(uiState, { searchParameters }) {

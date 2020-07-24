@@ -20,7 +20,12 @@ export const createInitOptions = (
     templatesConfig: instantSearchInstance.templatesConfig,
     helper: instantSearchInstance.helper!,
     state: instantSearchInstance.helper!.state,
+    results: undefined,
+    scopedResults: [],
     createURL: jest.fn(() => '#'),
+    searchMetadata: {
+      isSearchStalled: false,
+    },
     ...rest,
   };
 };
@@ -38,6 +43,7 @@ export const createRenderOptions = (
 
   return {
     instantSearchInstance,
+    parent: instantSearchInstance.mainIndex,
     templatesConfig: instantSearchInstance.templatesConfig,
     helper,
     state: helper.state,

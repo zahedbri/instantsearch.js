@@ -7,26 +7,16 @@ import {
 } from 'algoliasearch-helper';
 import { InstantSearch } from './instantsearch';
 
-export type InitOptions = {
-  instantSearchInstance: InstantSearch;
-  parent: Index | null;
-  uiState: UiState;
-  state: SearchParameters;
-  helper: Helper;
-  templatesConfig: object;
-  createURL(state: SearchParameters): string;
-};
-
 export type ScopedResult = {
   indexId: string;
   results: SearchResults;
   helper: Helper;
 };
 
-export type RenderOptions = {
+type SharedRenderOptions = {
   instantSearchInstance: InstantSearch;
+  parent: Index | null;
   templatesConfig: object;
-  results: SearchResults;
   scopedResults: ScopedResult[];
   state: SearchParameters;
   helper: Helper;
@@ -34,6 +24,15 @@ export type RenderOptions = {
     isSearchStalled: boolean;
   };
   createURL(state: SearchParameters): string;
+};
+
+export type InitOptions = SharedRenderOptions & {
+  uiState: UiState;
+  results: undefined;
+};
+
+export type RenderOptions = SharedRenderOptions & {
+  results: SearchResults;
 };
 
 export type DisposeOptions = {
@@ -119,6 +118,14 @@ export type UiState = {
   [indexId: string]: IndexUiState;
 };
 
+export type RenderState = {
+  searchBox: WidgetRenderState<{ query: string }>;
+};
+
+type WidgetRenderState<TWidgetRenderState> = TWidgetRenderState & {
+  widgetParams: object;
+};
+
 /**
  * Widgets are the building blocks of InstantSearch.js. Any valid widget must
  * have at least a `render` or a `init` function.
@@ -155,6 +162,12 @@ export type Widget = {
     | 'ais.stats'
     | 'ais.toggleRefinement'
     | 'ais.voiceSearch';
+  /**
+   * Returns the render params to pass to the render function.
+   */
+  getWidgetRenderState?(
+    options: InitOptions | RenderOptions
+  ): WidgetRenderState;
   /**
    * Called once before the first search
    */
