@@ -99,25 +99,23 @@ const connectConfigure: ConfigureConnector = function connectConfigure(
     return {
       $$type: 'ais.configure',
 
-      init({ instantSearchInstance, helper }) {
-        connectorState.refine = refine(helper);
+      init(initOptions) {
+        connectorState.refine = refine(initOptions.helper);
 
         renderFn(
           {
-            refine: connectorState.refine,
-            instantSearchInstance,
-            widgetParams,
+            ...this.getWidgetRenderState!(initOptions).configure,
+            instantSearchInstance: initOptions.instantSearchInstance,
           },
           true
         );
       },
 
-      render({ instantSearchInstance }) {
+      render(renderOptions) {
         renderFn(
           {
-            refine: connectorState.refine!,
-            instantSearchInstance,
-            widgetParams,
+            ...this.getWidgetRenderState!(renderOptions).configure,
+            instantSearchInstance: renderOptions.instantSearchInstance,
           },
           false
         );
@@ -127,6 +125,15 @@ const connectConfigure: ConfigureConnector = function connectConfigure(
         unmountFn();
 
         return getInitialSearchParameters(state, widgetParams);
+      },
+
+      getWidgetRenderState() {
+        return {
+          configure: {
+            refine: connectorState.refine!,
+            widgetParams,
+          },
+        };
       },
 
       getWidgetSearchParameters(state, { uiState }) {

@@ -6,6 +6,11 @@ import {
   PlainSearchParameters,
 } from 'algoliasearch-helper';
 import { InstantSearch } from './instantsearch';
+import { AutocompleteRendererOptions } from '../connectors/autocomplete/connectAutocomplete';
+import { BreadcrumbRendererOptions } from '../connectors/breadcrumb/connectBreadcrumb';
+import { ClearRefinementsRendererOptions } from '../connectors/clear-refinements/connectClearRefinements';
+import { ConfigureRendererOptions } from '../connectors/configure/connectConfigure';
+import { HitsRendererOptions } from '../connectors/hits/connectHits';
 
 export type ScopedResult = {
   indexId: string;
@@ -125,6 +130,11 @@ export type RenderState = {
     clear(): void;
     isSearchStalled: boolean;
   }>;
+  autocomplete: WidgetRenderState<AutocompleteRendererOptions>;
+  breadcrumb: WidgetRenderState<BreadcrumbRendererOptions>;
+  clearRefinements: WidgetRenderState<ClearRefinementsRendererOptions>;
+  configure: WidgetRenderState<ConfigureRendererOptions>;
+  hits: WidgetRenderState<HitsRendererOptions>;
 };
 
 type WidgetRenderState<TWidgetRenderState> = TWidgetRenderState & {

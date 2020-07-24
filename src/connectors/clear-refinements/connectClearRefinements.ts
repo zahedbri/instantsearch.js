@@ -85,20 +85,19 @@ const connectClearRefinements: ClearRefinementsConnector = function connectClear
     return {
       $$type: 'ais.clearRefinements',
 
-      init({ instantSearchInstance }) {
+      init(initOptions) {
         renderFn(
           {
-            hasRefinements: false,
-            refine: cachedRefine,
-            createURL: cachedCreateURL,
-            instantSearchInstance,
-            widgetParams,
+            ...this.getWidgetRenderState!(initOptions).clearRefinements,
+            instantSearchInstance: initOptions.instantSearchInstance,
           },
           true
         );
       },
 
-      render({ scopedResults, createURL, instantSearchInstance }) {
+      render(renderOptions) {
+        const { scopedResults, createURL } = renderOptions;
+
         const attributesToClear = scopedResults.reduce<
           Array<ReturnType<typeof getAttributesToClear>>
         >((results, scopedResult) => {
@@ -139,13 +138,8 @@ const connectClearRefinements: ClearRefinementsConnector = function connectClear
 
         renderFn(
           {
-            hasRefinements: attributesToClear.some(
-              attributeToClear => attributeToClear.items.length > 0
-            ),
-            refine: cachedRefine,
-            createURL: cachedCreateURL,
-            instantSearchInstance,
-            widgetParams,
+            ...this.getWidgetRenderState!(renderOptions).clearRefinements,
+            instantSearchInstance: renderOptions.instantSearchInstance,
           },
           false
         );
@@ -153,6 +147,32 @@ const connectClearRefinements: ClearRefinementsConnector = function connectClear
 
       dispose() {
         unmountFn();
+      },
+
+      getWidgetRenderState({ scopedResults }) {
+        const attributesToClear = scopedResults.reduce<
+          Array<ReturnType<typeof getAttributesToClear>>
+        >((results, scopedResult) => {
+          return results.concat(
+            getAttributesToClear({
+              scopedResult,
+              includedAttributes,
+              excludedAttributes,
+              transformItems,
+            })
+          );
+        }, []);
+
+        return {
+          clearRefinements: {
+            hasRefinements: attributesToClear.some(
+              attributeToClear => attributeToClear.items.length > 0
+            ),
+            refine: cachedRefine,
+            createURL: cachedCreateURL,
+            widgetParams,
+          },
+        };
       },
     };
   };
