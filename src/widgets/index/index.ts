@@ -637,16 +637,12 @@ function storeRenderState({
   const parentIndexName = parent
     ? parent.getIndexId()
     : instantSearchInstance.mainIndex.getIndexId();
-  const {
-    instantSearchInstance: widgetInstantSearchInstance,
-    ...state
-  } = widgetRenderState;
 
   instantSearchInstance.renderState = {
     ...instantSearchInstance.renderState,
     [parentIndexName]: {
       ...instantSearchInstance.renderState[parentIndexName],
-      ...state,
+      ...widgetRenderState,
     },
   };
 }

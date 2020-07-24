@@ -119,11 +119,16 @@ export type UiState = {
 };
 
 export type RenderState = {
-  searchBox: WidgetRenderState<{ query: string }>;
+  searchBox: WidgetRenderState<{
+    query: string;
+    refine(query: string): void;
+    clear(): void;
+    isSearchStalled: boolean;
+  }>;
 };
 
 type WidgetRenderState<TWidgetRenderState> = TWidgetRenderState & {
-  widgetParams: object;
+  widgetParams: any;
 };
 
 /**
@@ -165,9 +170,7 @@ export type Widget = {
   /**
    * Returns the render params to pass to the render function.
    */
-  getWidgetRenderState?(
-    options: InitOptions | RenderOptions
-  ): WidgetRenderState;
+  getWidgetRenderState?(options: InitOptions | RenderOptions): RenderState;
   /**
    * Called once before the first search
    */

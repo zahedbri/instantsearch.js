@@ -106,11 +106,14 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         };
 
         renderFn(
-          this.getWidgetRenderState({
-            helper,
+          {
+            ...this.getWidgetRenderState({
+              helper,
+              instantSearchInstance,
+              searchMetadata,
+            }).searchBox,
             instantSearchInstance,
-            searchMetadata,
-          }).searchBox,
+          },
           true
         );
       },
@@ -119,11 +122,14 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         this._clear = clear(helper);
 
         renderFn(
-          this.getWidgetRenderState({
-            helper,
+          {
+            ...this.getWidgetRenderState({
+              helper,
+              instantSearchInstance,
+              searchMetadata,
+            }).searchBox,
             instantSearchInstance,
-            searchMetadata,
-          }).searchBox,
+          },
           false
         );
       },
@@ -134,7 +140,7 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
         return state.setQueryParameter('query', undefined);
       },
 
-      getWidgetRenderState({ helper, instantSearchInstance, searchMetadata }) {
+      getWidgetRenderState({ helper, searchMetadata }) {
         return {
           searchBox: {
             query: helper.state.query || '',
@@ -142,7 +148,6 @@ export default function connectSearchBox(renderFn, unmountFn = noop) {
             clear: this._cachedClear,
             widgetParams,
             isSearchStalled: searchMetadata.isSearchStalled,
-            instantSearchInstance,
           },
         };
       },
