@@ -6,11 +6,26 @@ import {
   PlainSearchParameters,
 } from 'algoliasearch-helper';
 import { InstantSearch } from './instantsearch';
-import { AutocompleteRendererOptions } from '../connectors/autocomplete/connectAutocomplete';
-import { BreadcrumbRendererOptions } from '../connectors/breadcrumb/connectBreadcrumb';
-import { ClearRefinementsRendererOptions } from '../connectors/clear-refinements/connectClearRefinements';
-import { ConfigureRendererOptions } from '../connectors/configure/connectConfigure';
-import { HitsRendererOptions } from '../connectors/hits/connectHits';
+import {
+  AutocompleteRendererOptions,
+  AutocompleteConnectorParams,
+} from '../connectors/autocomplete/connectAutocomplete';
+import {
+  BreadcrumbRendererOptions,
+  BreadcrumbConnectorParams,
+} from '../connectors/breadcrumb/connectBreadcrumb';
+import {
+  ClearRefinementsRendererOptions,
+  ClearRefinementsConnectorParams,
+} from '../connectors/clear-refinements/connectClearRefinements';
+import {
+  ConfigureRendererOptions,
+  ConfigureConnectorParams,
+} from '../connectors/configure/connectConfigure';
+import {
+  HitsRendererOptions,
+  HitsConnectorParams,
+} from '../connectors/hits/connectHits';
 
 export type ScopedResult = {
   indexId: string;
@@ -124,21 +139,39 @@ export type UiState = {
 };
 
 export type RenderState = {
-  searchBox: WidgetRenderState<{
-    query: string;
-    refine(query: string): void;
-    clear(): void;
-    isSearchStalled: boolean;
-  }>;
-  autocomplete: WidgetRenderState<AutocompleteRendererOptions>;
-  breadcrumb: WidgetRenderState<BreadcrumbRendererOptions>;
-  clearRefinements: WidgetRenderState<ClearRefinementsRendererOptions>;
-  configure: WidgetRenderState<ConfigureRendererOptions>;
-  hits: WidgetRenderState<HitsRendererOptions>;
+  searchBox: WidgetRenderState<
+    {
+      query: string;
+      refine(query: string): void;
+      clear(): void;
+      isSearchStalled: boolean;
+    },
+    any
+  >;
+  autocomplete: WidgetRenderState<
+    AutocompleteRendererOptions,
+    AutocompleteConnectorParams
+  >;
+  breadcrumb: WidgetRenderState<
+    BreadcrumbRendererOptions,
+    BreadcrumbConnectorParams
+  >;
+  clearRefinements: WidgetRenderState<
+    ClearRefinementsRendererOptions,
+    ClearRefinementsConnectorParams
+  >;
+  configure: WidgetRenderState<
+    ConfigureRendererOptions,
+    ConfigureConnectorParams
+  >;
+  hits: WidgetRenderState<HitsRendererOptions, HitsConnectorParams>;
 };
 
-type WidgetRenderState<TWidgetRenderState> = TWidgetRenderState & {
-  widgetParams: any;
+type WidgetRenderState<
+  TWidgetRenderState,
+  TConnectorParams
+> = TWidgetRenderState & {
+  widgetParams: TConnectorParams;
 };
 
 /**
