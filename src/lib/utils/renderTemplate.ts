@@ -1,4 +1,4 @@
-import hogan from 'hogan.js';
+import { compile } from '../hogan/compiler';
 
 // We add all our template helper methods to the template as lambdas. Note
 // that lambdas in Mustache are supposed to accept a second argument of
@@ -10,8 +10,7 @@ function transformHelpersToHogan(helpers = {}, compileOptions, data) {
       ...acc,
       [helperKey]() {
         return text => {
-          const render = value =>
-            hogan.compile(value, compileOptions).render(this);
+          const render = value => compile(value, compileOptions).render(this);
 
           return helpers[helperKey].call(data, text, render);
         };
@@ -28,20 +27,24 @@ function renderTemplate({
   helpers,
   data,
   bindEvent,
+}: {
+  templates;
+  templateKey: string;
+  compileOptions;
+  helpers;
+  data;
+  bindEvent;
 }) {
   const template = templates[templateKey];
-  const templateType = typeof template;
-  const isTemplateString = templateType === 'string';
-  const isTemplateFunction = templateType === 'function';
 
-  if (!isTemplateString && !isTemplateFunction) {
-    throw new Error(
-      `Template must be 'string' or 'function', was '${templateType}' (key: ${templateKey})`
-    );
+  if (typeof template === 'function') {
+    return template(data, bindEvent);
   }
 
-  if (isTemplateFunction) {
-    return template(data, bindEvent);
+  if (typeof template !== 'string') {
+    throw new Error(
+      `Template must be 'string' or 'function', was '${typeof template}' (key: ${templateKey})`
+    );
   }
 
   const transformedHelpers = transformHelpersToHogan(
@@ -50,8 +53,7 @@ function renderTemplate({
     data
   );
 
-  return hogan
-    .compile(template, compileOptions)
+  return compile(template, compileOptions)
     .render({
       ...data,
       helpers: transformedHelpers,
