@@ -70,7 +70,8 @@ function scan(text, delimiters) {
     for (let j = lineStart; j < tokens.length; j++) {
       isAllWhitespace =
         tags[tokens[j].tag] < tags._v ||
-        (tokens[j].tag == '_t' && tokens[j].text.match(rIsWhitespace) === null);
+        (tokens[j].tag === '_t' &&
+          tokens[j].text.match(rIsWhitespace) === null);
       if (!isAllWhitespace) {
         return false;
       }
@@ -103,20 +104,20 @@ function scan(text, delimiters) {
   function changeDelimiters(string, index) {
     const close = `=${ctag}`;
     const closeIndex = string.indexOf(close, index);
-    const trimmedDelimiters = trim(
+    const newDelimiters = trim(
       string.substring(string.indexOf('=', index) + 1, closeIndex)
     ).split(' ');
 
-    otag = trimmedDelimiters[0];
-    ctag = trimmedDelimiters[trimmedDelimiters.length - 1];
+    otag = newDelimiters[0];
+    ctag = newDelimiters[newDelimiters.length - 1];
 
     return closeIndex + close.length - 1;
   }
 
   if (delimiters) {
-    delimiters = delimiters.split(' ');
-    otag = delimiters[0];
-    ctag = delimiters[1];
+    const newDelimiters = delimiters.split(' ');
+    otag = newDelimiters[0];
+    ctag = newDelimiters[1];
   }
 
   for (i = 0; i < len; i++) {
@@ -436,7 +437,7 @@ function walk(nodelist, context) {
   return context;
 }
 
-function parse(tokens, text, options) {
+function parse(tokens, options) {
   options = options || {};
   return buildTree(tokens, '', [], options.sectionTags || []);
 }
@@ -467,7 +468,7 @@ export function compile(text, options) {
   }
 
   template = generate(
-    parse(scan(text, options.delimiters), text, options),
+    parse(scan(text, options.delimiters), options),
     text,
     options
   );
