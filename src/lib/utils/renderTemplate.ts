@@ -1,16 +1,24 @@
+import { TemplateWithBindEvent } from '../../types';
 import { compile } from '../hogan/compiler';
+import { CompileOptions } from '../hogan/types';
+import { BindEventForHits } from './createSendEventForHits';
 
 // We add all our template helper methods to the template as lambdas. Note
 // that lambdas in Mustache are supposed to accept a second argument of
 // `render` to get the rendered value, not the literal `{{value}}`. But
 // this is currently broken (see https://github.com/twitter/hogan.js/issues/222).
-function transformHelpersToHogan(helpers = {}, compileOptions, data) {
+function transformHelpersToHogan<TTemplateData>(
+  helpers = {},
+  compileOptions: CompileOptions,
+  data: TTemplateData
+) {
   return Object.keys(helpers).reduce(
     (acc, helperKey) => ({
       ...acc,
       [helperKey]() {
-        return text => {
-          const render = value => compile(value, compileOptions).render(this);
+        return (text: string) => {
+          const render = (value: string) =>
+            compile(value, compileOptions).render(this);
 
           return helpers[helperKey].call(data, text, render);
         };
@@ -20,7 +28,7 @@ function transformHelpersToHogan(helpers = {}, compileOptions, data) {
   );
 }
 
-function renderTemplate({
+function renderTemplate<TTemplateData = void>({
   templates,
   templateKey,
   compileOptions,
@@ -28,12 +36,12 @@ function renderTemplate({
   data,
   bindEvent,
 }: {
-  templates;
+  templates: { [key: string]: TemplateWithBindEvent<TTemplateData> };
   templateKey: string;
-  compileOptions;
+  compileOptions: CompileOptions;
   helpers;
-  data;
-  bindEvent;
+  data: TTemplateData;
+  bindEvent: BindEventForHits;
 }) {
   const template = templates[templateKey];
 
