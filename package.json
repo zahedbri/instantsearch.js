@@ -56,7 +56,6 @@
     "algoliasearch-helper": "^3.2.2",
     "classnames": "^2.2.5",
     "events": "^1.1.0",
-    "hogan.js": "^3.0.2",
     "preact": "^10.0.0",
     "prop-types": "^15.5.10",
     "qs": "^6.5.1"
